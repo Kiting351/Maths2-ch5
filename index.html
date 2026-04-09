@@ -1,0 +1,1303 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Maths 2ème Sciences - Trigonométrie</title>
+    
+    <!-- Tailwind CSS pour le design -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- React & ReactDOM -->
+    <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+    <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+    
+    <!-- Babel pour compiler le JSX -->
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+
+    <style>
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .animate-fadeIn {
+            animation: fadeIn 0.3s ease-out forwards;
+        }
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-800 antialiased selection:bg-blue-200">
+    <div id="root"></div>
+
+    <script type="text/babel">
+        const { useState, useEffect } = React;
+
+        // ==========================================
+        // 🎨 ICONS (Inline SVG)
+        // ==========================================
+        const Icons = {
+            BookOpen: () => <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" /></svg>,
+            Beaker: () => <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8m-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5H8z" /></svg>,
+            CheckSquare: () => <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>,
+            CheckCircle: () => <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>,
+            Edit3: () => <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" /></svg>,
+            ChevronRight: () => <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" /></svg>,
+            AlertCircle: () => <svg className="w-5 h-5 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>,
+            Info: () => <svg className="w-5 h-5 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>,
+            Star: () => <svg className="w-5 h-5 text-amber-500 inline-block mr-2" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" /></svg>
+        };
+
+        // ==========================================
+        // 📚 DONNÉES PÉDAGOGIQUES COMPLÈTES (Chapitre 5)
+        // ==========================================
+        const modulesData = [
+            {
+                id: 'demi-cercle',
+                title: 'Demi-cercle & Coordonnées',
+                icon: '⭕',
+                course: (
+                    <div className="space-y-4">
+                        <p className="text-lg">Dans un repère orthonormé <span className="font-mono bg-gray-100 px-1 rounded">(O, i, j)</span>, le <strong>demi-cercle trigonométrique</strong> ζ est le demi-cercle de centre O, de rayon R = 1, situé dans le demi-plan supérieur (y ≥ 0).</p>
+                        <div className="bg-blue-50 border-l-4 border-blue-500 p-5 rounded-lg shadow-sm">
+                            <h4 className="font-bold text-blue-800 mb-2 text-lg">Définition (Cosinus et Sinus)</h4>
+                            <p>Pour tout angle α ∈ [0, π] (en radians) ou [0°, 180°], il existe un unique point M sur le demi-cercle tel que IÔM = α.</p>
+                            <ul className="list-disc ml-6 mt-3 space-y-1">
+                                <li>L'abscisse de M est le <strong>cosinus</strong> de α : <span className="font-mono bg-white px-1 rounded text-blue-800">x<sub>M</sub> = cos(α)</span></li>
+                                <li>L'ordonnée de M est le <strong>sinus</strong> de α : <span className="font-mono bg-white px-1 rounded text-blue-800">y<sub>M</sub> = sin(α)</span></li>
+                            </ul>
+                        </div>
+                        <div className="bg-purple-50 border-l-4 border-purple-500 p-4 rounded-lg shadow-sm">
+                            <h4 className="font-bold text-purple-800 mb-2 flex items-center"><Icons.Star /> Astuce du manuel : Le Sens Trigonométrique</h4>
+                            <p className="text-sm">Le sens trigonométrique (ou sens direct) est le sens <strong>inverse des aiguilles d'une montre</strong>. L'angle de 0° commence à droite sur l'axe des abscisses (point I), puis on "monte" le long du cercle.</p>
+                        </div>
+                        <div className="bg-amber-50 border-l-4 border-amber-500 p-4 rounded-lg shadow-sm">
+                            <h4 className="font-bold text-amber-800 mb-2 flex items-center"><Icons.Star /> Le Radian et la Longueur d'Arc</h4>
+                            <p className="text-sm">Le radian est l'unité de mesure d'angle du système international. La correspondance clé à retenir est : <strong>π rad = 180°</strong>.</p>
+                            <p className="mt-2 text-sm"><strong>Formule clé (page 74) :</strong> La longueur L d'un arc de cercle de rayon R intercepté par un angle au centre α (exprimé obligatoirement en radians) est : <strong>L = R × α</strong>.</p>
+                        </div>
+                        <div className="bg-orange-50 border-l-4 border-orange-500 p-5 rounded-lg shadow-sm">
+                            <h4 className="font-bold text-orange-800 mb-2 text-lg">Encadrement et Signes</h4>
+                            <p>Puisque M appartient au demi-cercle supérieur de rayon 1, ses coordonnées sont limitées :</p>
+                            <ul className="list-disc ml-6 font-semibold mt-2 text-orange-900">
+                                <li>-1 ≤ cos(α) ≤ 1</li>
+                                <li>0 ≤ sin(α) ≤ 1 <span className="text-sm font-normal text-orange-700">(Toujours positif !)</span></li>
+                            </ul>
+                        </div>
+                    </div>
+                ),
+                labType: 'circle-base',
+                quiz: [
+                    {
+                        question: "Si α est un angle obtus (entre 90° et 180°), quel est le signe de son cosinus et de son sinus ?",
+                        options: ["cos(α) > 0 et sin(α) > 0", "cos(α) < 0 et sin(α) > 0", "cos(α) < 0 et sin(α) < 0", "cos(α) > 0 et sin(α) < 0"],
+                        correct: 1,
+                        explanation: "Dans le quart de cercle supérieur gauche, l'abscisse (cosinus) est négative, mais l'ordonnée (sinus) reste positive."
+                    },
+                    {
+                        question: "Quelle est la valeur maximale que peut prendre le sinus d'un angle dans le demi-cercle trigonométrique ?",
+                        options: ["0", "0.5", "1", "L'infini"],
+                        correct: 2,
+                        explanation: "Le rayon du cercle est 1. Le point le plus haut est J(0, 1) atteint pour α = 90° (π/2 rad). Donc sin(α) ≤ 1."
+                    },
+                    {
+                        question: "À quel angle correspond le point M de coordonnées (-1, 0) ?",
+                        options: ["0°", "90° (π/2)", "180° (π)", "360° (2π)"],
+                        correct: 2,
+                        explanation: "Le point (-1, 0) est à l'extrémité gauche du demi-cercle, ce qui correspond à un angle plat de 180° ou π radians."
+                    },
+                    {
+                        question: "Le point M a pour coordonnées (-√2/2, √2/2). À quel angle correspond-il ?",
+                        options: ["45° (π/4)", "135° (3π/4)", "150° (5π/6)", "120° (2π/3)"],
+                        correct: 1,
+                        explanation: "L'abscisse est négative et l'ordonnée positive : on est dans le 2ème quadrant. La valeur √2/2 fait penser à l'angle de 45°. L'angle supplémentaire est 180° - 45° = 135° (ou 3π/4)."
+                    },
+                    {
+                        question: "Si M(x, y) est un point du demi-cercle trigonométrique, laquelle de ces conditions est toujours VRAIE ?",
+                        options: ["x ≥ 0", "y ≥ 0", "x = y", "x + y = 1"],
+                        correct: 1,
+                        explanation: "Le demi-cercle trigonométrique est défini dans le demi-plan supérieur, ce qui signifie que les ordonnées (y, c'est-à-dire le sinus) sont toujours positives ou nulles (y ≥ 0)."
+                    }
+                ],
+                exercises: [
+                    {
+                        title: "Placement de points et lecture graphique",
+                        statement: "Soit un demi-cercle trigonométrique. 1) Placer les points M et N associés aux réels π/3 et 5π/6. 2) Déterminer graphiquement le signe de cos(5π/6).",
+                        solution: (
+                            <div className="space-y-2">
+                                <p><strong>Étape 1 :</strong> L'angle π/3 (60°) est dans le premier quadrant. Le point M est à droite. L'angle 5π/6 (150°) est dans le deuxième quadrant, N est à gauche.</p>
+                                <p><strong>Étape 2 :</strong> Puisque N(5π/6) est situé dans la partie gauche, son ordonnée (sinus) est positive, mais son abscisse (cosinus) est strictement négative.</p>
+                                <p className="text-green-700"><strong>Conclusion :</strong> cos(5π/6) &lt; 0.</p>
+                            </div>
+                        )
+                    },
+                    {
+                        title: "Construire un angle connaissant son cosinus",
+                        statement: "Construire sur le demi-cercle trigonométrique le point M tel que cos(α) = -1/3. Déterminer graphiquement le signe de sin(α).",
+                        solution: (
+                            <div className="space-y-2">
+                                <p className="font-semibold text-amber-600 bg-amber-50 p-2 rounded flex items-center"><Icons.Star /> Astuce du manuel : On utilise l'axe des abscisses pour placer le cosinus.</p>
+                                <p><strong>Méthode :</strong> On place la valeur -1/3 sur l'axe des abscisses (axe horizontal). On trace la droite verticale d'équation x = -1/3.</p>
+                                <p>Cette droite coupe le demi-cercle en un unique point M (car y ≥ 0).</p>
+                                <p className="text-green-700"><strong>Conclusion :</strong> Le point M étant sur le demi-cercle supérieur, son ordonnée est forcément positive. Donc <strong>sin(α) &gt; 0</strong>.</p>
+                            </div>
+                        )
+                    },
+                    {
+                        title: "Positions extrêmes",
+                        statement: "Donner les coordonnées exactes des points I, J et K associés respectivement aux angles 0, π/2 et π.",
+                        solution: (
+                            <div className="space-y-2">
+                                <ul className="list-disc ml-6 space-y-1">
+                                    <li>L'angle <strong>0</strong> correspond au point I. Coordonnées : <strong>I(1, 0)</strong>. On en déduit cos(0)=1 et sin(0)=0.</li>
+                                    <li>L'angle <strong>π/2 (90°)</strong> correspond au point J, le sommet. Coordonnées : <strong>J(0, 1)</strong>. On en déduit cos(π/2)=0 et sin(π/2)=1.</li>
+                                    <li>L'angle <strong>π (180°)</strong> correspond au point K, à l'extrémité gauche. Coordonnées : <strong>K(-1, 0)</strong>. On en déduit cos(π)=-1 et sin(π)=0.</li>
+                                </ul>
+                            </div>
+                        )
+                    }
+                ]
+            },
+            {
+                id: 'symetries',
+                title: 'Angles Remarquables & Symétries',
+                icon: '📐',
+                course: (
+                    <div className="space-y-4">
+                        <div className="overflow-x-auto rounded-lg shadow-sm">
+                            <table className="w-full text-left border-collapse bg-white text-center">
+                                <thead className="bg-blue-800 text-white">
+                                    <tr>
+                                        <th className="p-3 border font-semibold">Angle α</th>
+                                        <th className="p-3 border font-semibold">0</th>
+                                        <th className="p-3 border font-semibold">π/6 (30°)</th>
+                                        <th className="p-3 border font-semibold">π/4 (45°)</th>
+                                        <th className="p-3 border font-semibold">π/3 (60°)</th>
+                                        <th className="p-3 border font-semibold">π/2 (90°)</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td className="p-3 border font-bold bg-slate-50 text-left">sin(α)</td>
+                                        <td className="p-3 border">0</td>
+                                        <td className="p-3 border font-medium text-blue-700">1/2</td>
+                                        <td className="p-3 border font-medium text-blue-700">√2/2</td>
+                                        <td className="p-3 border font-medium text-blue-700">√3/2</td>
+                                        <td className="p-3 border">1</td>
+                                    </tr>
+                                    <tr>
+                                        <td className="p-3 border font-bold bg-slate-50 text-left">cos(α)</td>
+                                        <td className="p-3 border">1</td>
+                                        <td className="p-3 border font-medium text-green-700">√3/2</td>
+                                        <td className="p-3 border font-medium text-green-700">√2/2</td>
+                                        <td className="p-3 border font-medium text-green-700">1/2</td>
+                                        <td className="p-3 border">0</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                        
+                        <div className="bg-yellow-50 border-l-4 border-yellow-500 p-4 rounded-lg shadow-sm mt-4">
+                            <h4 className="font-bold text-yellow-800 mb-2 flex items-center"><Icons.Star /> Astuce de mémorisation (Règle de la main)</h4>
+                            <p className="text-sm">Pour retenir les valeurs du sinus, numérotez les doigts de votre main ouverte de 0 à 4 (Pouce=0°, Index=30°, Majeur=45°, Annulaire=60°, Auriculaire=90°).</p>
+                            <p className="text-sm mt-1">La valeur du sinus est toujours : <strong>√(Numéro du doigt) / 2</strong>.</p>
+                            <ul className="list-disc ml-6 mt-2 text-sm font-mono text-yellow-900">
+                                <li>Pour 30° (doigt 1) : √1 / 2 = 1/2</li>
+                                <li>Pour 45° (doigt 2) : √2 / 2</li>
+                                <li>Pour 60° (doigt 3) : √3 / 2</li>
+                            </ul>
+                        </div>
+
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
+                            <div className="bg-indigo-50 border-l-4 border-indigo-500 p-5 rounded-lg shadow-sm">
+                                <h4 className="font-bold text-indigo-800 mb-2">Angles Supplémentaires (π - α)</h4>
+                                <p className="text-sm mb-3">La somme fait 180° (π). Symétriques par rapport à l'axe vertical.</p>
+                                <div className="bg-white p-3 rounded border border-indigo-100">
+                                    <ul className="list-none space-y-2 font-mono text-indigo-900 font-semibold">
+                                        <li>sin(π - α) = sin(α)</li>
+                                        <li>cos(π - α) = -cos(α)</li>
+                                    </ul>
+                                </div>
+                            </div>
+                            <div className="bg-teal-50 border-l-4 border-teal-500 p-5 rounded-lg shadow-sm">
+                                <h4 className="font-bold text-teal-800 mb-2">Angles Complémentaires (π/2 - α)</h4>
+                                <p className="text-sm mb-3">La somme fait 90° (π/2). Symétriques par rapport à la bissectrice.</p>
+                                <div className="bg-white p-3 rounded border border-teal-100">
+                                    <ul className="list-none space-y-2 font-mono text-teal-900 font-semibold">
+                                        <li>sin(π/2 - α) = cos(α)</li>
+                                        <li>cos(π/2 - α) = sin(α)</li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div className="bg-blue-50 border-l-4 border-blue-500 p-4 rounded-lg shadow-sm mt-4">
+                            <h4 className="font-bold text-blue-800 mb-2 flex items-center"><Icons.Star /> Méthode : Réduction au premier quadrant</h4>
+                            <p className="text-sm">Face à un angle obtus (ex: 150° ou 5π/6), cherchez toujours son <strong>supplémentaire</strong> pour revenir à un angle aigu connu du tableau :</p>
+                            <p className="font-mono mt-2 text-sm bg-white p-2 rounded inline-block text-blue-900 border border-blue-200">
+                                150° = 180° - 30° ⇒ sin(150°) = sin(30°) = 1/2
+                            </p>
+                        </div>
+                    </div>
+                ),
+                labType: 'circle-sym',
+                quiz: [
+                    {
+                        question: "Si cos(π/6) = √3/2, que vaut cos(5π/6) sachant que 5π/6 = π - π/6 ?",
+                        options: ["√3/2", "-√3/2", "1/2", "-1/2"],
+                        correct: 1,
+                        explanation: "Les angles supplémentaires ont des cosinus opposés. Puisque 5π/6 = π - π/6, alors cos(5π/6) = -cos(π/6) = -√3/2."
+                    },
+                    {
+                        question: "Parmi les propositions suivantes, laquelle est vraie pour tout angle α ?",
+                        options: ["sin(π/2 - α) = -sin(α)", "sin(π - α) = -sin(α)", "cos(π/2 - α) = sin(α)", "cos(π - α) = cos(α)"],
+                        correct: 2,
+                        explanation: "Le cosinus du complémentaire est égal au sinus de l'angle. C'est la relation fondamentale des triangles rectangles (le cos de l'un est le sin de l'autre)."
+                    },
+                    {
+                        question: "Que vaut sin(3π/4) ?",
+                        options: ["1/2", "√2/2", "-√2/2", "-1/2"],
+                        correct: 1,
+                        explanation: "3π/4 est le supplémentaire de π/4 (car π - π/4 = 3π/4). Ils ont le même sinus : sin(π/4) = √2/2, donc sin(3π/4) = √2/2."
+                    },
+                    {
+                        question: "Que vaut la somme : cos(10°) + cos(170°) ?",
+                        options: ["1", "-1", "0", "On ne peut pas calculer sans machine"],
+                        correct: 2,
+                        explanation: "170° et 10° sont supplémentaires (170 + 10 = 180). Or, cos(180° - x) = -cos(x). Donc cos(170°) = -cos(10°). La somme donne 0."
+                    },
+                    {
+                        question: "Sachant que sin(x) = cos(20°), que peut valoir x (si x est un angle aigu) ?",
+                        options: ["20°", "70°", "160°", "90°"],
+                        correct: 1,
+                        explanation: "Le sinus d'un angle est égal au cosinus de son complémentaire (somme = 90°). Donc sin(70°) = cos(90° - 70°) = cos(20°)."
+                    }
+                ],
+                exercises: [
+                    {
+                        title: "Calcul exact en utilisant les symétries",
+                        statement: "Calculer les valeurs exactes de : A = cos(2π/3) et B = sin(3π/4).",
+                        solution: (
+                            <div className="space-y-3">
+                                <div>
+                                    <p className="font-semibold text-blue-700">Calcul de A :</p>
+                                    <p>On remarque que 2π/3 = π - π/3.</p>
+                                    <p>D'après la propriété des angles supplémentaires : cos(π - α) = -cos(α).</p>
+                                    <p>Donc cos(2π/3) = -cos(π/3) = -1/2.</p>
+                                </div>
+                                <div>
+                                    <p className="font-semibold text-blue-700">Calcul de B :</p>
+                                    <p>On remarque que 3π/4 = π - π/4.</p>
+                                    <p>Propriété : sin(π - α) = sin(α).</p>
+                                    <p>Donc sin(3π/4) = sin(π/4) = √2/2.</p>
+                                </div>
+                            </div>
+                        )
+                    },
+                    {
+                        title: "Simplification d'expressions",
+                        statement: "Simplifier l'expression E = sin(π - x) + cos(π/2 - x) - 2sin(x).",
+                        solution: (
+                            <div className="space-y-2">
+                                <p>Appliquons les propriétés du cours terme par terme :</p>
+                                <ul className="list-disc ml-6 font-mono text-sm bg-gray-50 p-2 rounded inline-block">
+                                    <li>sin(π - x) = sin(x)</li>
+                                    <li>cos(π/2 - x) = sin(x)</li>
+                                </ul>
+                                <p>En remplaçant dans E : E = sin(x) + sin(x) - 2sin(x)</p>
+                                <p>E = 2sin(x) - 2sin(x) = 0.</p>
+                                <p className="text-green-700 font-bold">Conclusion : E = 0.</p>
+                            </div>
+                        )
+                    },
+                    {
+                        title: "Astuce des angles complémentaires (Carrés)",
+                        statement: "Calculer sans calculatrice la valeur exacte de l'expression : S = sin²(15°) + sin²(75°).",
+                        solution: (
+                            <div className="space-y-2">
+                                <p className="font-semibold text-amber-600 bg-amber-50 p-2 rounded flex items-center"><Icons.Star /> Astuce : Chercher des angles dont la somme fait 90°.</p>
+                                <p>On remarque que 15° + 75° = 90°.</p>
+                                <p>D'après le cours : sin(75°) = cos(90° - 75°) = cos(15°).</p>
+                                <p>On remplace dans l'expression de S : S = sin²(15°) + cos²(15°)</p>
+                                <p>On reconnait la relation fondamentale : cos²(x) + sin²(x) = 1 pour tout x.</p>
+                                <p className="text-green-700 font-bold">Conclusion : S = 1.</p>
+                            </div>
+                        )
+                    },
+                    {
+                        title: "Somme de cosinus",
+                        statement: "Simplifier l'expression F = cos(π/8) + cos(3π/8) + cos(5π/8) + cos(7π/8).",
+                        solution: (
+                            <div className="space-y-2">
+                                <p className="font-semibold text-amber-600 bg-amber-50 p-2 rounded flex items-center"><Icons.Star /> Astuce : Regrouper les termes extrêmes et les termes centraux.</p>
+                                <p>On remarque que :</p>
+                                <ul className="list-disc ml-6">
+                                    <li>7π/8 = π - π/8  ⇒  cos(7π/8) = -cos(π/8)</li>
+                                    <li>5π/8 = π - 3π/8  ⇒  cos(5π/8) = -cos(3π/8)</li>
+                                </ul>
+                                <p>On remplace dans F : F = cos(π/8) + cos(3π/8) - cos(3π/8) - cos(π/8)</p>
+                                <p>Les termes s'annulent deux à deux.</p>
+                                <p className="text-green-700 font-bold">Conclusion : F = 0.</p>
+                            </div>
+                        )
+                    }
+                ]
+            },
+            {
+                id: 'tangente',
+                title: 'Tangente & Cotangente',
+                icon: '📈',
+                course: (
+                    <div className="space-y-4">
+                        <div className="bg-blue-50 p-5 rounded-lg border-l-4 border-blue-500 shadow-sm">
+                            <h4 className="font-bold text-blue-800 mb-3 text-lg">La Tangente (tan)</h4>
+                            <p>Pour tout α ≠ π/2 (car le cosinus ne doit pas être nul) :</p>
+                            <p className="text-center font-bold text-2xl my-3 text-blue-900 bg-white p-2 rounded inline-block mx-auto">tan(α) = sin(α) / cos(α)</p>
+                            <p className="text-sm mt-2"><strong>Géométriquement :</strong> C'est l'ordonnée du point d'intersection T de la droite (OM) avec la droite x=1.</p>
+                        </div>
+                        <div className="bg-green-50 p-5 rounded-lg border-l-4 border-green-500 shadow-sm">
+                            <h4 className="font-bold text-green-800 mb-3 text-lg">La Cotangente (cot)</h4>
+                            <p>Pour tout α ≠ 0 et α ≠ π (car le sinus ne doit pas être nul) :</p>
+                            <p className="text-center font-bold text-2xl my-3 text-green-900 bg-white p-2 rounded inline-block mx-auto">cot(α) = cos(α) / sin(α) = 1 / tan(α)</p>
+                            <p className="text-sm mt-2"><strong>Géométriquement :</strong> C'est l'abscisse du point d'intersection K de la droite (OM) avec y=1.</p>
+                        </div>
+                        <div className="bg-amber-50 border-l-4 border-amber-500 p-4 rounded-lg shadow-sm mt-4">
+                            <h4 className="font-bold text-amber-800 mb-2 flex items-center"><Icons.Star /> Astuce du manuel : Le Coefficient Directeur</h4>
+                            <p className="text-sm">La tangente d'un angle α correspond exactement au <strong>coefficient directeur (la pente)</strong> de la droite (OM). </p>
+                            <ul className="list-disc ml-6 mt-2 text-sm">
+                                <li>Si l'angle est <strong>aigu</strong>, la droite "monte", la pente est positive : <strong>tan(α) &gt; 0</strong>.</li>
+                                <li>Si l'angle est <strong>obtus</strong>, la droite "descend", la pente est négative : <strong>tan(α) &lt; 0</strong>.</li>
+                            </ul>
+                        </div>
+                        <div className="bg-red-50 border-l-4 border-red-500 p-4 rounded-lg shadow-sm mt-4">
+                            <h4 className="font-bold text-red-800 mb-2 flex items-center"><Icons.AlertCircle /> Piège fréquent (page 83)</h4>
+                            <p className="text-sm">Ne dites jamais que tan(90°) = ∞ ! En 2ème sciences, on dit simplement que la tangente <strong>n'est pas définie</strong> en π/2 (90°) car la division par zéro (cos(90°)=0) est impossible. Géométriquement, les droites sont parallèles.</p>
+                        </div>
+                    </div>
+                ),
+                labType: 'circle-tan',
+                quiz: [
+                    {
+                        question: "Pourquoi la tangente de 90° (π/2) n'est-elle pas définie ?",
+                        options: ["Car sin(π/2) = 0", "Car cos(π/2) = 0", "Car le cercle s'arrête", "Car elle est égale à 1"],
+                        correct: 1,
+                        explanation: "La tangente est le rapport sin/cos. En π/2 (90°), cos(π/2) = 0. La division par zéro est impossible."
+                    },
+                    {
+                        question: "Quel est le signe de tan(120°) ?",
+                        options: ["Positif", "Négatif", "Nul", "Impossible à savoir"],
+                        correct: 1,
+                        explanation: "120° est dans le 2ème quadrant. Le sinus est positif, le cosinus est négatif. Le rapport positif/négatif donne un résultat négatif."
+                    },
+                    {
+                        question: "Si tan(α) = 2, que vaut cot(α) ?",
+                        options: ["-2", "0.5", "-0.5", "Impossible à calculer sans l'angle"],
+                        correct: 1,
+                        explanation: "La cotangente est l'inverse de la tangente. cot(α) = 1 / tan(α) = 1 / 2 = 0.5."
+                    },
+                    {
+                        question: "Vrai ou Faux : La valeur de tan(α) ne peut jamais dépasser 1.",
+                        options: ["Vrai", "Faux"],
+                        correct: 1,
+                        explanation: "Faux ! Contrairement au sinus et cosinus qui sont bornés entre -1 et 1, la tangente peut prendre n'importe quelle valeur de -∞ à +∞. Par exemple, tan(89°) ≈ 57."
+                    },
+                    {
+                        question: "Pour un angle aigu α, si on connait tan(α), peut-on déterminer la valeur exacte de cos(α) ?",
+                        options: ["Oui", "Non", "Seulement si l'angle est remarquable"],
+                        correct: 0,
+                        explanation: "Oui, grâce à la relation 1 + tan²(α) = 1 / cos²(α). En connaissant la tangente, on isole cos²(α). Comme α est aigu, le cosinus est positif, on prend la racine carrée."
+                    }
+                ],
+                exercises: [
+                    {
+                        title: "Calcul du sinus et de la tangente",
+                        statement: "Sachant que α est un angle aigu et que cos(α) = 0.8, calculer sin(α) puis tan(α).",
+                        solution: (
+                            <div className="space-y-3">
+                                <div>
+                                    <p className="font-semibold text-blue-700">1. Calcul de sin(α) :</p>
+                                    <p>On sait que cos²(α) + sin²(α) = 1.</p>
+                                    <p>Donc 0.8² + sin²(α) = 1 ⇒ 0.64 + sin²(α) = 1.</p>
+                                    <p>sin²(α) = 1 - 0.64 = 0.36.</p>
+                                    <p>Comme α est un angle du demi-cercle, sin(α) est toujours positif. Donc sin(α) = √0.36 = 0.6.</p>
+                                </div>
+                                <div>
+                                    <p className="font-semibold text-blue-700">2. Calcul de tan(α) :</p>
+                                    <p>Par définition : tan(α) = sin(α) / cos(α).</p>
+                                    <p>tan(α) = 0.6 / 0.8 = 6 / 8 = 0.75.</p>
+                                </div>
+                            </div>
+                        )
+                    },
+                    {
+                        title: "L'astuce de la division par le cosinus",
+                        statement: "On donne tan(x) = 3 avec x un angle aigu. Calculer sans chercher x la valeur de l'expression : C = (2sin(x) - cos(x)) / (sin(x) + 3cos(x)).",
+                        solution: (
+                            <div className="space-y-2">
+                                <p className="font-semibold text-amber-600 bg-amber-50 p-2 rounded flex items-center"><Icons.Star /> Astuce : Faire apparaître tan(x) en divisant numérateur et dénominateur par cos(x).</p>
+                                <p>On sait que cos(x) n'est pas nul car x est aigu. On divise tous les termes :</p>
+                                <p className="font-mono text-sm bg-gray-100 p-2 rounded">
+                                    C = [ (2sin(x)/cos(x)) - (cos(x)/cos(x)) ]  /  [ (sin(x)/cos(x)) + (3cos(x)/cos(x)) ]
+                                </p>
+                                <p>On reconnait tan(x) = sin(x)/cos(x) et cos(x)/cos(x) = 1 :</p>
+                                <p className="font-mono text-sm bg-gray-100 p-2 rounded">C = (2tan(x) - 1) / (tan(x) + 3)</p>
+                                <p>On remplace tan(x) par 3 : C = (2(3) - 1) / (3 + 3) = (6 - 1) / 6 = 5/6.</p>
+                                <p className="text-green-700 font-bold">Conclusion : C = 5/6.</p>
+                            </div>
+                        )
+                    },
+                    {
+                        title: "Démonstration avec la tangente",
+                        statement: "Démontrer que pour tout angle aigu x, on a : tan²(x) - sin²(x) = tan²(x) × sin²(x).",
+                        solution: (
+                            <div className="space-y-2">
+                                <p className="font-semibold text-amber-600 bg-amber-50 p-2 rounded flex items-center"><Icons.Star /> Astuce : Quand on a la tangente dans une preuve, on la remplace souvent par sin/cos.</p>
+                                <p>Partons du membre de gauche : M = tan²(x) - sin²(x).</p>
+                                <p>Remplaçons tan(x) : M = [sin²(x) / cos²(x)] - sin²(x).</p>
+                                <p>Factorisons par sin²(x) : M = sin²(x) × [ (1 / cos²(x)) - 1 ].</p>
+                                <p>Mettons le contenu du crochet au même dénominateur : M = sin²(x) × [ (1 - cos²(x)) / cos²(x) ].</p>
+                                <p>Or d'après le cours, 1 - cos²(x) = sin²(x) !</p>
+                                <p>Donc M = sin²(x) × [ sin²(x) / cos²(x) ].</p>
+                                <p>Et on reconnait [ sin²(x) / cos²(x) ] = tan²(x).</p>
+                                <p>Donc M = sin²(x) × tan²(x).</p>
+                                <p className="text-green-700 font-bold">L'égalité est bien démontrée.</p>
+                            </div>
+                        )
+                    }
+                ]
+            },
+            {
+                id: 'relations',
+                title: 'Relations Fondamentales',
+                icon: '🔗',
+                course: (
+                    <div className="space-y-4">
+                        <p className="text-lg mb-4">Ces identités sont la base de tous les calculs trigonométriques. À connaître par cœur !</p>
+                        
+                        <div className="grid grid-cols-1 gap-4">
+                            <div className="bg-white border-2 border-red-200 p-5 rounded-xl shadow-md">
+                                <h4 className="font-bold text-red-800 text-center mb-1 text-lg">Relation Principale (Pythagore)</h4>
+                                <p className="text-center font-bold text-3xl my-3 text-red-600 bg-red-50 p-3 rounded">cos²(α) + sin²(α) = 1</p>
+                                <p className="text-sm text-gray-600 text-center">Valable pour TOUT angle α. C'est simplement l'application du théorème de Pythagore dans le triangle rectangle OMH d'hypoténuse 1.</p>
+                            </div>
+
+                            <div className="flex flex-col sm:flex-row gap-4">
+                                <div className="bg-white border-2 border-gray-200 p-4 rounded-xl flex-1 shadow-sm">
+                                    <h4 className="font-bold text-slate-800 mb-2">Avec la Tangente</h4>
+                                    <p className="text-sm text-gray-500">Pour α ≠ π/2 :</p>
+                                    <p className="text-center font-bold text-xl my-2 text-blue-900 bg-blue-50 p-2 rounded">1 + tan²(α) = 1 / cos²(α)</p>
+                                </div>
+                                <div className="bg-white border-2 border-gray-200 p-4 rounded-xl flex-1 shadow-sm">
+                                    <h4 className="font-bold text-slate-800 mb-2">Avec la Cotangente</h4>
+                                    <p className="text-sm text-gray-500">Pour α ∉ {'{0, π}'} :</p>
+                                    <p className="text-center font-bold text-xl my-2 text-green-900 bg-green-50 p-2 rounded">1 + cot²(α) = 1 / sin²(α)</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div className="bg-amber-50 border-l-4 border-amber-500 p-4 rounded-lg shadow-sm mt-6">
+                            <h4 className="font-bold text-amber-800 mb-2 flex items-center"><Icons.Star /> Astuce de calcul : L'erreur du signe de la racine !</h4>
+                            <p className="text-sm">Quand vous utilisez la relation principale pour trouver le cosinus à partir du sinus, vous arrivez souvent à une équation du type :</p>
+                            <p className="font-mono mt-2 text-sm bg-white p-2 rounded border border-amber-200 text-center font-bold text-amber-900">cos²(α) = a</p>
+                            <p className="mt-2 text-sm"><strong>⚠️ Attention :</strong> Mathématiquement, cela donne deux solutions : <strong>cos(α) = √a</strong> OU <strong>cos(α) = -√a</strong>.</p>
+                            <p className="mt-1 text-sm text-red-600 font-semibold">Vous devez TOUJOURS justifier le choix du signe en regardant l'énoncé :</p>
+                            <ul className="list-disc ml-6 mt-1 text-sm">
+                                <li>Si l'énoncé dit "α est un angle aigu" (0 à 90°) ➜ Le cosinus est positif, on prend <strong className="text-green-700">√a</strong>.</li>
+                                <li>Si l'énoncé dit "α est un angle obtus" (90° à 180°) ➜ Le cosinus est négatif, on prend <strong className="text-red-700">-√a</strong>.</li>
+                            </ul>
+                        </div>
+                    </div>
+                ),
+                labType: 'circle-pythagore',
+                quiz: [
+                    {
+                        question: "Si cos(α) = 0, que vaut obligatoirement sin(α) sur le demi-cercle trigonométrique ?",
+                        options: ["0", "1", "-1", "Impossible à déterminer"],
+                        correct: 1,
+                        explanation: "Si cos(α) = 0, d'après la relation cos² + sin² = 1, on a 0 + sin²(α) = 1, donc sin(α) = 1 ou -1. Mais sur le demi-cercle (angles de 0 à 180°), le sinus est toujours positif. Donc sin(α) = 1 (angle de 90°)."
+                    },
+                    {
+                        question: "Laquelle de ces affirmations est FAUSSE ?",
+                        options: ["cos²(x) + sin²(x) = 1", "1 + tan²(x) = 1 / cos²(x)", "tan(x) × cot(x) = 1", "sin²(x) - cos²(x) = 1"],
+                        correct: 3,
+                        explanation: "C'est la somme (sin² + cos²) qui vaut 1, pas la différence ! (sin² - cos² ne vaut 1 que si le cos vaut 0)."
+                    },
+                    {
+                        question: "L'expression (cos x + sin x)² + (cos x - sin x)² se simplifie en :",
+                        options: ["0", "1", "2", "4sin(x)cos(x)"],
+                        correct: 2,
+                        explanation: "En développant avec (a+b)² et (a-b)² : (cos² + 2sincos + sin²) + (cos² - 2sincos + sin²). Les doubles produits (+2 et -2) s'annulent. Il reste 2cos² + 2sin² = 2(cos² + sin²) = 2×1 = 2."
+                    },
+                    {
+                        question: "Si sin(x) = 3/5 et que x est un angle OBTUS, que vaut cos(x) ?",
+                        options: ["4/5", "-4/5", "16/25", "2/5"],
+                        correct: 1,
+                        explanation: "On utilise cos²x = 1 - sin²x = 1 - 9/25 = 16/25. Donc cos(x) = 4/5 ou -4/5. Puisque x est OBTUS (dans le 2ème quadrant), son cosinus est NÉGATIF. La réponse est donc -4/5."
+                    },
+                    {
+                        question: "L'expression (cos(x) + sin(x))² - 2sin(x)cos(x) est égale à :",
+                        options: ["0", "1", "-1", "cos²(x)"],
+                        correct: 1,
+                        explanation: "Développons : cos²(x) + 2sin(x)cos(x) + sin²(x) - 2sin(x)cos(x). Les termes en 2sincos s'annulent. Reste cos²(x) + sin²(x), qui vaut toujours 1."
+                    }
+                ],
+                exercises: [
+                    {
+                        title: "Utilisation des relations avec tan(x)",
+                        statement: "Soit un angle aigu x tel que tan(x) = 2. Calculer cos(x) puis sin(x).",
+                        solution: (
+                            <div className="space-y-3">
+                                <div>
+                                    <p className="font-semibold text-blue-700">1. Calcul de cos(x) :</p>
+                                    <p>On utilise la formule : 1 + tan²(x) = 1 / cos²(x).</p>
+                                    <p>En remplaçant : 1 + 2² = 1 / cos²(x) ⇒ 1 + 4 = 5 = 1 / cos²(x).</p>
+                                    <p>Donc cos²(x) = 1/5.</p>
+                                    <p>Comme x est aigu, cos(x) &gt; 0. Donc cos(x) = √(1/5) = 1/√5 = √5/5.</p>
+                                </div>
+                                <div>
+                                    <p className="font-semibold text-blue-700">2. Calcul de sin(x) :</p>
+                                    <p>On sait que tan(x) = sin(x) / cos(x) ⇒ sin(x) = tan(x) × cos(x).</p>
+                                    <p>sin(x) = 2 × (√5/5) = 2√5/5.</p>
+                                </div>
+                            </div>
+                        )
+                    },
+                    {
+                        title: "Démonstration d'identité trigonométrique (1)",
+                        statement: "Démontrer l'identité suivante pour tout x aigu : tan(x) + cot(x) = 1 / (sin(x)cos(x)).",
+                        solution: (
+                            <div className="space-y-2">
+                                <p className="font-semibold text-amber-600 bg-amber-50 p-2 rounded flex items-center"><Icons.Star /> Astuce : Convertir toutes les tangentes et cotangentes en sinus et cosinus, puis mettre au même dénominateur.</p>
+                                <p>Partons du membre de gauche : tan(x) + cot(x) = [sin(x) / cos(x)] + [cos(x) / sin(x)]</p>
+                                <p>Mise au même dénominateur (on multiplie croisé) :</p>
+                                <p>Dénominateur commun : cos(x) × sin(x).</p>
+                                <p>Numérateur : sin(x)×sin(x) + cos(x)×cos(x) = sin²(x) + cos²(x).</p>
+                                <p>L'expression devient : (sin²(x) + cos²(x)) / (sin(x)cos(x)).</p>
+                                <p>Or on sait que sin²(x) + cos²(x) = 1.</p>
+                                <p className="text-green-700 font-bold">Conclusion : On obtient bien 1 / (sin(x)cos(x)).</p>
+                            </div>
+                        )
+                    },
+                    {
+                        title: "Démonstration d'identité trigonométrique (2)",
+                        statement: "Montrer que cos⁴(x) - sin⁴(x) = cos²(x) - sin²(x).",
+                        solution: (
+                            <div className="space-y-2">
+                                <p className="font-semibold text-amber-600 bg-amber-50 p-2 rounded flex items-center"><Icons.Star /> Astuce algébrique : Penser à l'identité remarquable a² - b² = (a - b)(a + b).</p>
+                                <p>Ici, a = cos²(x) et b = sin²(x). On a donc a² - b² avec les puissances 4.</p>
+                                <p>cos⁴(x) - sin⁴(x) = (cos²(x))² - (sin²(x))²</p>
+                                <p>On applique l'identité remarquable :</p>
+                                <p>= [cos²(x) - sin²(x)] × [cos²(x) + sin²(x)]</p>
+                                <p>Le deuxième crochet est magique : cos²(x) + sin²(x) = 1.</p>
+                                <p>= [cos²(x) - sin²(x)] × 1</p>
+                                <p className="text-green-700 font-bold">L'égalité est bien démontrée !</p>
+                            </div>
+                        )
+                    }
+                ]
+            },
+            // ==========================================
+            // 🆕 NOUVEAU MODULE : APPLICATIONS GEOMETRIQUES
+            // ==========================================
+            {
+                id: 'applications',
+                title: 'Applications Géométriques',
+                icon: '📐',
+                course: (
+                    <div className="space-y-6">
+                        <div className="bg-white p-5 rounded-lg border-2 border-indigo-200 shadow-sm">
+                            <h4 className="font-bold text-indigo-800 text-lg mb-2">1. Théorème d'El-Kashi (Loi des Cosinus - p.86)</h4>
+                            <p className="text-sm mb-2 text-gray-700">Généralisation du théorème de Pythagore pour <strong>tout triangle ABC</strong> (où a=BC, b=AC, c=AB) :</p>
+                            <p className="text-center font-bold text-xl my-3 text-indigo-900 bg-indigo-50 p-2 rounded inline-block w-full">a² = b² + c² - 2bc × cos(Â)</p>
+                            <p className="text-sm mt-1 text-gray-600">Par permutation, on a aussi : b² = a² + c² - 2ac × cos(B̂) et c² = a² + b² - 2ab × cos(Ĉ).</p>
+                        </div>
+
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div className="bg-teal-50 p-4 rounded-lg border-l-4 border-teal-500 shadow-sm">
+                                <h4 className="font-bold text-teal-800 mb-2">2. Aire d'un triangle (p.85-86)</h4>
+                                <p className="text-sm">L'aire S d'un triangle ABC peut être calculée si l'on connaît 2 côtés et l'angle compris entre eux :</p>
+                                <p className="text-center font-bold text-lg my-2 text-teal-900 bg-white p-2 rounded border border-teal-200">S = ½ × b × c × sin(Â)</p>
+                            </div>
+
+                            <div className="bg-emerald-50 p-4 rounded-lg border-l-4 border-emerald-500 shadow-sm">
+                                <h4 className="font-bold text-emerald-800 mb-2">3. Loi des Sinus (p.85)</h4>
+                                <p className="text-sm mb-2">Dans tout triangle ABC, les côtés sont proportionnels aux sinus des angles opposés :</p>
+                                <p className="text-center font-bold text-lg text-emerald-900 bg-white p-2 rounded border border-emerald-200">a / sin(Â) = b / sin(B̂) = c / sin(Ĉ)</p>
+                            </div>
+                        </div>
+
+                        <div className="bg-amber-50 border-l-4 border-amber-500 p-4 rounded-lg shadow-sm">
+                            <h4 className="font-bold text-amber-800 mb-2 flex items-center">4. Triangles Isométriques (p.86)</h4>
+                            <p className="text-sm mb-2">Deux triangles sont isométriques (superposables) s'ils vérifient l'un des 3 cas suivants :</p>
+                            <ul className="list-disc ml-6 mt-1 text-sm text-amber-900 space-y-1 font-medium">
+                                <li><strong>CCC :</strong> Les 3 côtés sont respectivement de même longueur.</li>
+                                <li><strong>CAC :</strong> Un angle de même mesure compris entre 2 côtés de même longueur.</li>
+                                <li><strong>ACA :</strong> Un côté de même longueur adjacent à 2 angles de même mesure.</li>
+                            </ul>
+                        </div>
+
+                        <div className="bg-rose-50 border-l-4 border-rose-500 p-4 rounded-lg shadow-sm">
+                            <h4 className="font-bold text-rose-800 mb-2">5. Relations métriques (Triangle Rectangle - p.86)</h4>
+                            <p className="text-sm mb-2">Soit ABC rectangle en A, et [AH] la hauteur issue de A. On a les relations puissantes suivantes :</p>
+                            <ul className="grid grid-cols-1 sm:grid-cols-2 gap-2 mt-2 font-mono text-sm text-rose-900 bg-white p-3 rounded border border-rose-200">
+                                <li>1) AH² = HB × HC</li>
+                                <li>2) AB² = BH × BC</li>
+                                <li>3) AC² = CH × CB</li>
+                                <li>4) AB × AC = AH × BC</li>
+                            </ul>
+                        </div>
+                    </div>
+                ),
+                labType: 'triangle-alkashi',
+                quiz: [
+                    {
+                        question: "Laquelle de ces formules correspond au théorème d'El-Kashi (Loi des cosinus) pour trouver la longueur a ?",
+                        options: [
+                            "a² = b² + c² + 2bc × cos(Â)",
+                            "a² = b² + c² - 2bc × cos(Â)",
+                            "a² = b² + c² - bc × cos(Â)",
+                            "a² = b² + c² - 2bc × sin(Â)"
+                        ],
+                        correct: 1,
+                        explanation: "C'est la formule exacte d'El-Kashi. Le signe est négatif (-) et on utilise le cosinus de l'angle opposé au côté cherché."
+                    },
+                    {
+                        question: "On connaît b = 4, c = 5 et l'angle Â = 30°. Quelle est l'aire S du triangle ABC ?",
+                        options: ["10", "10 × √3", "5", "20"],
+                        correct: 2,
+                        explanation: "L'aire S = (1/2) × b × c × sin(Â). Donc S = 0.5 × 4 × 5 × sin(30°). Puisque sin(30°) = 0.5, on a S = 10 × 0.5 = 5."
+                    },
+                    {
+                        question: "Dans un triangle ABC, a = 6, sin(Â) = 0.5 et sin(B̂) = 0.25. Que vaut b d'après la loi des sinus ?",
+                        options: ["3", "12", "6", "1.5"],
+                        correct: 0,
+                        explanation: "La loi des sinus dit que a/sin(Â) = b/sin(B̂). Donc 6/0.5 = b/0.25 ⇒ 12 = b/0.25 ⇒ b = 12 × 0.25 = 3."
+                    },
+                    {
+                        question: "Lequel de ces cas N'EST PAS un cas d'isométrie pour deux triangles quelconques ?",
+                        options: ["3 côtés égaux (CCC)", "2 côtés et l'angle compris égaux (CAC)", "3 angles égaux (AAA)", "1 côté et les 2 angles adjacents égaux (ACA)"],
+                        correct: 2,
+                        explanation: "Avoir 3 angles de même mesure (AAA) prouve que les triangles sont SEMBLABLES, mais pas isométriques (ils peuvent être de tailles différentes, comme une maquette)."
+                    },
+                    {
+                        question: "Dans un triangle ABC rectangle en A, de hauteur AH, on a HB = 2 et HC = 8. Que vaut la hauteur AH ?",
+                        options: ["10", "16", "4", "5"],
+                        correct: 2,
+                        explanation: "D'après les relations métriques de la page 86, AH² = HB × HC. Donc AH² = 2 × 8 = 16. La hauteur AH vaut donc la racine de 16, soit 4."
+                    }
+                ],
+                exercises: [
+                    {
+                        title: "Théorème d'El-Kashi (Côté manquant)",
+                        statement: "Soit un triangle ABC tel que AB = 4, AC = 5 et l'angle Â = 60°. Calculer la valeur exacte de la longueur BC.",
+                        solution: (
+                            <div className="space-y-2">
+                                <p className="font-semibold text-amber-600 bg-amber-50 p-2 rounded flex items-center"><Icons.Star /> Astuce : Identifiez a, b, c. Ici on cherche a (BC), on connaît c (AB=4) et b (AC=5).</p>
+                                <p>On applique le théorème d'El-Kashi :</p>
+                                <p className="font-mono bg-indigo-50 p-2 rounded">a² = b² + c² - 2bc × cos(Â)</p>
+                                <p>BC² = AC² + AB² - 2 × AC × AB × cos(60°)</p>
+                                <p>BC² = 5² + 4² - 2 × 5 × 4 × (1/2)   <span className="text-gray-500 text-sm">(Rappel: cos 60° = 1/2)</span></p>
+                                <p>BC² = 25 + 16 - 40 × 0.5</p>
+                                <p>BC² = 41 - 20 = 21.</p>
+                                <p className="text-green-700 font-bold">Conclusion : La longueur BC = √21.</p>
+                            </div>
+                        )
+                    },
+                    {
+                        title: "Aire et Loi des Sinus",
+                        statement: "Soit un triangle ABC avec b = AC = 6, l'angle Â = 45° et l'angle B̂ = 60°. 1) Calculer l'angle Ĉ. 2) Calculer la longueur a = BC avec la loi des sinus. 3) Calculer l'aire du triangle.",
+                        solution: (
+                            <div className="space-y-3">
+                                <div>
+                                    <p className="font-semibold text-blue-700">1. Calcul de l'angle Ĉ :</p>
+                                    <p>La somme des angles d'un triangle fait 180°. Ĉ = 180° - (45° + 60°) = 180° - 105° = 75°.</p>
+                                </div>
+                                <div>
+                                    <p className="font-semibold text-blue-700">2. Longueur a (BC) :</p>
+                                    <p>Loi des sinus : a / sin(Â) = b / sin(B̂).</p>
+                                    <p>a / sin(45°) = 6 / sin(60°)</p>
+                                    <p>a / (√2/2) = 6 / (√3/2)</p>
+                                    <p>a = (√2/2) × [ 12 / √3 ] = (6√2) / √3 = 2√6.</p>
+                                </div>
+                                <div>
+                                    <p className="font-semibold text-blue-700">3. Aire du triangle :</p>
+                                    <p>S = (1/2) × a × b × sin(Ĉ)  OU  S = (1/2) × c × b × sin(Â).</p>
+                                    <p>En utilisant a et b : S = (1/2) × (2√6) × 6 × sin(75°).</p>
+                                    <p className="text-gray-600 text-sm">*(Note : on garde sin(75°) ou on utilise sa valeur exacte (√6+√2)/4 vue en exercice des pages précédentes).*</p>
+                                    <p className="text-green-700 font-bold">S = 6√6 × sin(75°).</p>
+                                </div>
+                            </div>
+                        )
+                    },
+                    {
+                        title: "Relations Métriques (Page 86)",
+                        statement: "Soit ABC un triangle rectangle en A. [AH] est la hauteur issue de A. On donne HB = 2 cm et HC = 8 cm. Calculer les longueurs AH, AB et AC.",
+                        solution: (
+                            <div className="space-y-3">
+                                <p className="font-semibold text-amber-600 bg-amber-50 p-2 rounded flex items-center"><Icons.Star /> Astuce : On connaît les projections de l'hypoténuse (HB et HC), on applique directement les 3 relations métriques des carrés.</p>
+                                <div>
+                                    <p className="font-bold text-rose-800">1. Calcul de la hauteur AH :</p>
+                                    <p>On sait que AH² = HB × HC.</p>
+                                    <p>AH² = 2 × 8 = 16  ⇒  <strong className="text-green-700">AH = 4 cm</strong>.</p>
+                                </div>
+                                <div>
+                                    <p className="font-bold text-rose-800">2. Calcul du côté AB :</p>
+                                    <p>On sait que AB² = BH × BC.</p>
+                                    <p>On calcule l'hypoténuse BC = BH + HC = 2 + 8 = 10 cm.</p>
+                                    <p>AB² = 2 × 10 = 20  ⇒  <strong className="text-green-700">AB = √20 = 2√5 cm</strong>.</p>
+                                </div>
+                                <div>
+                                    <p className="font-bold text-rose-800">3. Calcul du côté AC :</p>
+                                    <p>On sait que AC² = CH × BC.</p>
+                                    <p>AC² = 8 × 10 = 80  ⇒  <strong className="text-green-700">AC = √80 = 4√5 cm</strong>.</p>
+                                </div>
+                                <p className="text-sm text-gray-500 italic mt-2">Vérification par Pythagore : AB² + AC² = 20 + 80 = 100. Et BC² = 10² = 100. C'est parfait !</p>
+                            </div>
+                        )
+                    }
+                ]
+            }
+        ];
+
+        // ==========================================
+        // 🔬 LABORATOIRES INTERACTIFS (SVGs)
+        // ==========================================
+
+        // Nouveau labo spécifique pour le triangle (El-Kashi / Aire)
+        const TriangleLab = () => {
+            const [b, setB] = useState(6);
+            const [c, setC] = useState(5);
+            const [angleA, setAngleA] = useState(60);
+
+            // Calculs trigonométriques du triangle
+            const radA = angleA * Math.PI / 180;
+            const a2 = b*b + c*c - 2*b*c*Math.cos(radA);
+            const a = Math.sqrt(a2);
+            const area = 0.5 * b * c * Math.sin(radA);
+
+            // Dessin SVG (mise à l'échelle)
+            const scale = 15;
+            const ptA = { x: 0, y: 0 };
+            const ptC = { x: b * scale, y: 0 };
+            const ptB = { x: c * scale * Math.cos(radA), y: -c * scale * Math.sin(radA) };
+
+            const formatVal = (val) => val.toFixed(1);
+
+            return (
+                <div className="flex flex-col items-center max-w-2xl mx-auto bg-white p-4 sm:p-6 rounded-2xl shadow-sm border border-slate-200">
+                    
+                    <div className="w-full mb-6 bg-indigo-50 p-4 rounded-xl border border-indigo-100 grid grid-cols-1 md:grid-cols-3 gap-4">
+                        <div>
+                            <label className="flex justify-between text-sm font-bold text-slate-700 mb-1">
+                                <span>Côté b (AC)</span>
+                                <span className="text-indigo-700">{b}</span>
+                            </label>
+                            <input type="range" min="2" max="10" step="0.5" value={b} onChange={(e) => setB(parseFloat(e.target.value))} className="w-full accent-indigo-600" />
+                        </div>
+                        <div>
+                            <label className="flex justify-between text-sm font-bold text-slate-700 mb-1">
+                                <span>Côté c (AB)</span>
+                                <span className="text-indigo-700">{c}</span>
+                            </label>
+                            <input type="range" min="2" max="10" step="0.5" value={c} onChange={(e) => setC(parseFloat(e.target.value))} className="w-full accent-indigo-600" />
+                        </div>
+                        <div>
+                            <label className="flex justify-between text-sm font-bold text-slate-700 mb-1">
+                                <span>Angle Â</span>
+                                <span className="text-indigo-700">{angleA}°</span>
+                            </label>
+                            <input type="range" min="10" max="170" value={angleA} onChange={(e) => setAngleA(parseInt(e.target.value))} className="w-full accent-indigo-600" />
+                        </div>
+                    </div>
+
+                    <div className="relative w-full max-w-[400px] aspect-video bg-slate-50 rounded-lg border border-slate-200 overflow-hidden flex items-center justify-center touch-none">
+                        <svg viewBox="-50 -150 250 180" className="w-full h-full drop-shadow-sm">
+                            {/* Triangle */}
+                            <polygon points={`${ptA.x},${ptA.y} ${ptB.x},${ptB.y} ${ptC.x},${ptC.y}`} fill="#e0e7ff" stroke="#4f46e5" strokeWidth="2" strokeLinejoin="round" />
+                            {/* Angle A Arc */}
+                            <path d={`M 20 0 A 20 20 0 0 0 ${20 * Math.cos(radA)} ${-20 * Math.sin(radA)}`} fill="none" stroke="#ef4444" strokeWidth="2" />
+                            {/* Labels Points */}
+                            <text x="-15" y="15" fontSize="12" fontWeight="bold" fill="#334155">A</text>
+                            <text x={ptB.x - 5} y={ptB.y - 10} fontSize="12" fontWeight="bold" fill="#334155">B</text>
+                            <text x={ptC.x + 5} y={ptC.y + 15} fontSize="12" fontWeight="bold" fill="#334155">C</text>
+                            {/* Labels Côtés */}
+                            <text x={ptC.x / 2} y="15" fontSize="12" fill="#4f46e5" fontWeight="bold">b = {b}</text>
+                            <text x={(ptA.x + ptB.x)/2 - 25} y={(ptA.y + ptB.y)/2 - 10} fontSize="12" fill="#4f46e5" fontWeight="bold">c = {c}</text>
+                            <text x={(ptB.x + ptC.x)/2 + 10} y={(ptB.y + ptC.y)/2 - 10} fontSize="12" fill="#ef4444" fontWeight="bold">a = {formatVal(a)}</text>
+                        </svg>
+                    </div>
+
+                    <div className="mt-6 w-full grid grid-cols-1 sm:grid-cols-2 gap-3 text-center">
+                        <div className="bg-indigo-50 p-4 rounded-lg border border-indigo-200">
+                            <span className="block text-xs font-bold text-indigo-800 uppercase mb-2">Théorème d'El-Kashi (côté a)</span>
+                            <span className="block text-sm font-mono text-slate-700 mb-1">a² = {b}² + {c}² - 2({b})({c})cos({angleA}°)</span>
+                            <span className="block text-lg font-bold text-indigo-700">a ≈ {formatVal(a)}</span>
+                        </div>
+                        <div className="bg-teal-50 p-4 rounded-lg border border-teal-200">
+                            <span className="block text-xs font-bold text-teal-800 uppercase mb-2">Aire du Triangle (S)</span>
+                            <span className="block text-sm font-mono text-slate-700 mb-1">S = ½ × {b} × {c} × sin({angleA}°)</span>
+                            <span className="block text-lg font-bold text-teal-700">S ≈ {formatVal(area)} u.a.</span>
+                        </div>
+                    </div>
+                </div>
+            );
+        };
+
+        const TrigonometryLab = ({ type }) => {
+            const [angleDeg, setAngleDeg] = useState(60);
+            const [showSupp, setShowSupp] = useState(false);
+            const [showComp, setShowComp] = useState(false);
+
+            const rad = angleDeg * (Math.PI / 180);
+            const R = 100; 
+            const cx = R * Math.cos(rad);
+            const cy = -R * Math.sin(rad);
+
+            const formatVal = (val) => val.toFixed(2);
+            const cosVal = Math.cos(rad);
+            const sinVal = Math.sin(rad);
+
+            const primaryColor = "#2563eb"; 
+            const axisColor = "#94a3b8"; 
+            const cosColor = "#dc2626"; 
+            const sinColor = "#16a34a"; 
+
+            return (
+                <div className="flex flex-col items-center max-w-2xl mx-auto bg-white p-4 sm:p-6 rounded-2xl shadow-sm border border-slate-200">
+                    
+                    <div className="w-full mb-6 bg-slate-50 p-4 rounded-xl">
+                        <label className="flex justify-between font-bold text-slate-700 mb-2">
+                            <span>Angle α</span>
+                            <span className="text-blue-600 bg-blue-100 px-2 py-1 rounded text-sm">{angleDeg}° ({(angleDeg/180).toFixed(2)}π rad)</span>
+                        </label>
+                        <input 
+                            type="range" 
+                            min="0" max="180" 
+                            value={angleDeg} 
+                            onChange={(e) => setAngleDeg(parseInt(e.target.value))}
+                            className="w-full h-3 bg-blue-200 rounded-lg appearance-none cursor-pointer accent-blue-600"
+                        />
+                    </div>
+
+                    {type === 'circle-sym' && (
+                        <div className="flex gap-4 mb-4 text-sm font-semibold">
+                            <label className="flex items-center cursor-pointer p-2 bg-indigo-50 text-indigo-700 rounded border border-indigo-200">
+                                <input type="checkbox" className="mr-2 accent-indigo-600 w-4 h-4" checked={showSupp} onChange={e => setShowSupp(e.target.checked)} />
+                                Montrer (π - α)
+                            </label>
+                            <label className="flex items-center cursor-pointer p-2 bg-teal-50 text-teal-700 rounded border border-teal-200">
+                                <input type="checkbox" className="mr-2 accent-teal-600 w-4 h-4" checked={showComp} onChange={e => setShowComp(e.target.checked)} />
+                                Montrer (π/2 - α)
+                            </label>
+                        </div>
+                    )}
+
+                    <div className="relative w-full max-w-[350px] aspect-[4/3] bg-slate-50 rounded-lg border border-slate-200 overflow-hidden touch-none">
+                        <svg viewBox="-140 -140 280 180" className="w-full h-full drop-shadow-sm">
+                            <g stroke="#e2e8f0" strokeWidth="1" strokeDasharray="5,5">
+                                <line x1="-100" y1="-100" x2="-100" y2="20" />
+                                <line x1="-50" y1="-100" x2="-50" y2="20" />
+                                <line x1="50" y1="-100" x2="50" y2="20" />
+                                <line x1="100" y1="-100" x2="100" y2="20" />
+                                <line x1="-120" y1="-50" x2="120" y2="-50" />
+                                <line x1="-120" y1="-100" x2="120" y2="-100" />
+                            </g>
+
+                            <g stroke={axisColor} strokeWidth="1.5">
+                                <line x1="-130" y1="0" x2="130" y2="0" markerEnd="url(#arrowX)" />
+                                <line x1="0" y1="20" x2="0" y2="-130" markerEnd="url(#arrowY)" />
+                            </g>
+                            <text x="120" y="15" fontSize="12" fill={axisColor} fontFamily="monospace">x (cos)</text>
+                            <text x="-35" y="-120" fontSize="12" fill={axisColor} fontFamily="monospace">y (sin)</text>
+                            <text x="-12" y="14" fontSize="12" fill={axisColor} fontWeight="bold">O</text>
+                            <text x="102" y="14" fontSize="10" fill={axisColor}>1</text>
+                            <text x="-10" y="-102" fontSize="10" fill={axisColor}>1</text>
+                            <text x="-110" y="14" fontSize="10" fill={axisColor}>-1</text>
+
+                            <defs>
+                                <marker id="arrowX" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+                                    <path d="M 0 0 L 10 5 L 0 10 z" fill={axisColor} />
+                                </marker>
+                                <marker id="arrowY" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+                                    <path d="M 0 0 L 10 5 L 0 10 z" fill={axisColor} />
+                                </marker>
+                            </defs>
+
+                            <path d="M -100 0 A 100 100 0 0 1 100 0" fill="none" stroke="#64748b" strokeWidth="2" />
+
+                            {type === 'circle-tan' && (
+                                <>
+                                    <line x1="100" y1="20" x2="100" y2="-130" stroke="#f59e0b" strokeWidth="1.5" strokeDasharray="4,2" />
+                                    <text x="105" y="-120" fontSize="10" fill="#d97706" fontWeight="bold">x=1 (tan)</text>
+                                    
+                                    <line x1="-130" y1="-100" x2="130" y2="-100" stroke="#10b981" strokeWidth="1.5" strokeDasharray="4,2" />
+                                    <text x="-125" y="-105" fontSize="10" fill="#059669" fontWeight="bold">y=1 (cot)</text>
+
+                                    {angleDeg !== 90 && (
+                                        <line x1="0" y1="0" x2={angleDeg < 90 ? 100 : -100} y2={angleDeg < 90 ? -100*Math.tan(rad) : 100*Math.tan(rad)} stroke="#cbd5e1" strokeWidth="1" strokeDasharray="2,2"/>
+                                    )}
+
+                                    {angleDeg !== 90 && (
+                                        <>
+                                            <circle cx="100" cy={-100 * Math.tan(rad)} r="4" fill="#d97706" />
+                                            <text x="108" y={-100 * Math.tan(rad) + 4} fontSize="10" fill="#d97706" fontWeight="bold">T</text>
+                                        </>
+                                    )}
+                                    
+                                    {angleDeg !== 0 && angleDeg !== 180 && (
+                                        <>
+                                            <circle cx={100 / Math.tan(rad)} cy="-100" r="4" fill="#059669" />
+                                            <text x={100 / Math.tan(rad) - 4} y="-110" fontSize="10" fill="#059669" fontWeight="bold">K</text>
+                                        </>
+                                    )}
+                                </>
+                            )}
+
+                            {type === 'circle-sym' && showComp && (
+                                <g opacity="0.6">
+                                    <path d={`M 0 0 L ${R * Math.cos(Math.PI/2 - rad)} ${-R * Math.sin(Math.PI/2 - rad)}`} stroke="#0d9488" strokeWidth="2" strokeDasharray="4,4" />
+                                    <circle cx={R * Math.cos(Math.PI/2 - rad)} cy={-R * Math.sin(Math.PI/2 - rad)} r="4" fill="#0d9488" />
+                                    <text x={R * Math.cos(Math.PI/2 - rad) + 5} y={-R * Math.sin(Math.PI/2 - rad) - 5} fontSize="10" fill="#0d9488">M'</text>
+                                    <line x1="0" y1="0" x2="100" y2="-100" stroke="#0d9488" strokeWidth="1" opacity="0.4" />
+                                </g>
+                            )}
+
+                            {type === 'circle-sym' && showSupp && (
+                                <g opacity="0.6">
+                                    <path d={`M 0 0 L ${R * Math.cos(Math.PI - rad)} ${-R * Math.sin(Math.PI - rad)}`} stroke="#4f46e5" strokeWidth="2" strokeDasharray="4,4" />
+                                    <circle cx={R * Math.cos(Math.PI - rad)} cy={-R * Math.sin(Math.PI - rad)} r="4" fill="#4f46e5" />
+                                    <text x={R * Math.cos(Math.PI - rad) - 15} y={-R * Math.sin(Math.PI - rad) - 5} fontSize="10" fill="#4f46e5">M''</text>
+                                </g>
+                            )}
+
+                            <path d={`M 20 0 A 20 20 0 0 0 ${20 * Math.cos(rad)} ${-20 * Math.sin(rad)}`} fill="none" stroke={primaryColor} strokeWidth="2" />
+                            
+                            <line x1="0" y1="0" x2={cx} y2={cy} stroke={primaryColor} strokeWidth="2.5" />
+                            <circle cx={cx} cy={cy} r="5" fill={primaryColor} />
+                            <text x={cx + (cx >= 0 ? 8 : -18)} y={cy - 8} fontSize="12" fontWeight="bold" fill={primaryColor}>M</text>
+
+                            {type !== 'circle-tan' && (
+                                <>
+                                    <line x1={cx} y1={cy} x2={cx} y2="0" stroke={cosColor} strokeWidth="1.5" strokeDasharray="3,3" />
+                                    <line x1="0" y1="0" x2={cx} y2="0" stroke={cosColor} strokeWidth="3" />
+                                    <line x1={cx} y1={cy} x2="0" y2={cy} stroke={sinColor} strokeWidth="1.5" strokeDasharray="3,3" />
+                                    <line x1="0" y1="0" x2="0" y2={cy} stroke={sinColor} strokeWidth="3" />
+                                </>
+                            )}
+
+                            {type === 'circle-pythagore' && (
+                                <path d={`M 0 0 L ${cx} 0 L ${cx} ${cy} Z`} fill="#fef08a" opacity="0.4" stroke="#eab308" strokeWidth="1" />
+                            )}
+                        </svg>
+                    </div>
+
+                    <div className="mt-6 w-full grid grid-cols-2 gap-3 text-center">
+                        <div className="bg-red-50 p-3 rounded-lg border border-red-100">
+                            <span className="block text-xs font-bold text-red-600 uppercase mb-1">Cosinus (x)</span>
+                            <span className="block text-lg font-mono text-slate-800">{formatVal(cosVal)}</span>
+                        </div>
+                        <div className="bg-green-50 p-3 rounded-lg border border-green-100">
+                            <span className="block text-xs font-bold text-green-600 uppercase mb-1">Sinus (y)</span>
+                            <span className="block text-lg font-mono text-slate-800">{formatVal(sinVal)}</span>
+                        </div>
+                        
+                        {type === 'circle-tan' && (
+                            <>
+                                <div className="bg-amber-50 p-3 rounded-lg border border-amber-100">
+                                    <span className="block text-xs font-bold text-amber-600 uppercase mb-1">Tangente</span>
+                                    <span className="block text-lg font-mono text-slate-800">
+                                        {angleDeg === 90 ? "Non définie" : formatVal(Math.tan(rad))}
+                                    </span>
+                                </div>
+                                <div className="bg-emerald-50 p-3 rounded-lg border border-emerald-100">
+                                    <span className="block text-xs font-bold text-emerald-600 uppercase mb-1">Cotangente</span>
+                                    <span className="block text-lg font-mono text-slate-800">
+                                        {(angleDeg === 0 || angleDeg === 180) ? "Non définie" : formatVal(1/Math.tan(rad))}
+                                    </span>
+                                </div>
+                            </>
+                        )}
+
+                        {type === 'circle-pythagore' && (
+                            <div className="col-span-2 bg-blue-50 p-3 rounded-lg border border-blue-200 mt-2">
+                                <span className="block text-sm font-bold text-blue-800 mb-1">Vérification de l'identité :</span>
+                                <span className="block text-base font-mono">
+                                    ({formatVal(cosVal)})² + ({formatVal(sinVal)})² = 
+                                    <span className="font-bold text-blue-600 ml-1">
+                                        {formatVal(cosVal * cosVal)} + {formatVal(sinVal * sinVal)} = {Math.round(cosVal*cosVal + sinVal*sinVal)}
+                                    </span>
+                                </span>
+                            </div>
+                        )}
+                    </div>
+                </div>
+            );
+        };
+
+        // ==========================================
+        // 📝 COMPOSANT QCM (Interactif avec feedback)
+        // ==========================================
+        const Quiz = ({ questions }) => {
+            const [currentQ, setCurrentQ] = useState(0);
+            const [selected, setSelected] = useState(null);
+            const [showResult, setShowResult] = useState(false);
+
+            useEffect(() => {
+                setCurrentQ(0);
+                setSelected(null);
+                setShowResult(false);
+            }, [questions]);
+
+            const handleSelect = (idx) => {
+                if(showResult) return;
+                setSelected(idx);
+                setShowResult(true);
+            };
+
+            const nextQ = () => {
+                setCurrentQ(prev => prev + 1);
+                setSelected(null);
+                setShowResult(false);
+            };
+
+            const q = questions[currentQ];
+
+            return (
+                <div className="bg-white p-5 sm:p-8 rounded-2xl shadow-sm border border-slate-200">
+                    <div className="flex justify-between items-center mb-6">
+                        <span className="text-sm font-bold text-slate-400 uppercase tracking-wider">Question {currentQ + 1} / {questions.length}</span>
+                        <div className="flex gap-1 flex-wrap">
+                            {questions.map((_, i) => (
+                                <div key={i} className={`h-2 w-4 sm:w-6 rounded-full mb-1 ${i === currentQ ? 'bg-blue-600' : i < currentQ ? 'bg-blue-200' : 'bg-slate-200'}`}></div>
+                            ))}
+                        </div>
+                    </div>
+                    
+                    <h3 className="text-lg sm:text-xl font-bold text-slate-800 mb-6 leading-tight">{q.question}</h3>
+                    
+                    <div className="space-y-3">
+                        {q.options.map((opt, idx) => {
+                            const isSelected = selected === idx;
+                            const isCorrect = idx === q.correct;
+                            let btnClass = "w-full text-left p-4 rounded-xl border-2 transition-all font-medium ";
+                            
+                            if (!showResult) {
+                                btnClass += "border-slate-200 hover:border-blue-400 hover:bg-blue-50 active:bg-blue-100 text-slate-700";
+                            } else {
+                                if (isCorrect) btnClass += "border-green-500 bg-green-50 text-green-800";
+                                else if (isSelected) btnClass += "border-red-500 bg-red-50 text-red-800";
+                                else btnClass += "border-slate-200 opacity-50";
+                            }
+
+                            return (
+                                <button key={idx} onClick={() => handleSelect(idx)} disabled={showResult} className={btnClass}>
+                                    <div className="flex items-center">
+                                        <div className={`w-6 h-6 shrink-0 rounded-full border-2 mr-3 flex items-center justify-center
+                                            ${showResult && isCorrect ? 'border-green-500 bg-green-500 text-white' : 
+                                              showResult && isSelected ? 'border-red-500 bg-red-500 text-white' : 'border-slate-300'}`}>
+                                            {showResult && isCorrect && <Icons.CheckCircle />}
+                                        </div>
+                                        <span>{opt}</span>
+                                    </div>
+                                </button>
+                            );
+                        })}
+                    </div>
+
+                    {showResult && (
+                        <div className={`mt-6 p-4 rounded-xl animate-fadeIn ${selected === q.correct ? 'bg-green-100 text-green-900 border border-green-200' : 'bg-amber-50 text-amber-900 border border-amber-200'}`}>
+                            <div className="flex items-start">
+                                <div className="mt-0.5 mr-3 shrink-0">
+                                    {selected === q.correct ? <Icons.CheckCircle /> : <Icons.AlertCircle />}
+                                </div>
+                                <div>
+                                    <h4 className="font-bold mb-1">{selected === q.correct ? 'Excellente réponse !' : 'Oups, regardons de plus près.'}</h4>
+                                    <p className="text-sm leading-relaxed">{q.explanation}</p>
+                                </div>
+                            </div>
+                            
+                            {currentQ < questions.length - 1 ? (
+                                <button onClick={nextQ} className="mt-4 w-full bg-slate-800 hover:bg-slate-700 text-white font-bold py-3 px-4 rounded-xl transition-colors flex justify-center items-center">
+                                    Question suivante <Icons.ChevronRight />
+                                </button>
+                            ) : (
+                                <div className="mt-4 p-3 bg-white bg-opacity-50 rounded-lg text-center font-bold text-slate-700">
+                                    Fin du QCM pour ce module ! 🎉
+                                </div>
+                            )}
+                        </div>
+                    )}
+                </div>
+            );
+        };
+
+        // ==========================================
+        // ✏️ COMPOSANT EXERCICES (Pas à pas)
+        // ==========================================
+        const ExerciseViewer = ({ exercises }) => {
+            const [openIdx, setOpenIdx] = useState(null);
+
+            return (
+                <div className="space-y-4">
+                    {exercises.map((ex, idx) => (
+                        <div key={idx} className="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
+                            <div className="p-5 border-b border-slate-100 bg-slate-50">
+                                <div className="flex items-center text-blue-800 font-bold mb-2">
+                                    <span className="bg-blue-100 text-blue-800 text-xs px-2 py-1 rounded mr-2 uppercase tracking-wide">Exercice {idx + 1}</span>
+                                    <h3 className="text-lg">{ex.title}</h3>
+                                </div>
+                                <p className="text-slate-700 font-medium leading-relaxed">{ex.statement}</p>
+                            </div>
+                            
+                            <div className="p-2">
+                                <button 
+                                    onClick={() => setOpenIdx(openIdx === idx ? null : idx)}
+                                    className="w-full text-left px-4 py-3 rounded-xl font-bold flex justify-between items-center text-slate-600 hover:bg-slate-100 transition-colors"
+                                >
+                                    <span className="flex items-center"><Icons.Info /> <span className="ml-2">Correction et Astuce du Manuel</span></span>
+                                    <span className="text-2xl leading-none">{openIdx === idx ? '−' : '+'}</span>
+                                </button>
+                                
+                                {openIdx === idx && (
+                                    <div className="px-4 pb-4 pt-2 animate-fadeIn">
+                                        <div className="bg-blue-50/50 p-4 rounded-xl border border-blue-100 text-slate-800">
+                                            {ex.solution}
+                                        </div>
+                                    </div>
+                                )}
+                            </div>
+                        </div>
+                    ))}
+                </div>
+            );
+        };
+
+        // ==========================================
+        // 🌟 APPLICATION PRINCIPALE
+        // ==========================================
+        const App = () => {
+            const [activeModuleId, setActiveModuleId] = useState(modulesData[0].id);
+            const [activeTab, setActiveTab] = useState('labo');
+
+            const activeModule = modulesData.find(m => m.id === activeModuleId);
+
+            const tabs = [
+                { id: 'cours', label: 'Résumé de Cours', icon: Icons.BookOpen },
+                { id: 'labo', label: 'Laboratoire', icon: Icons.Beaker },
+                { id: 'qcm', label: 'QCM Rapide', icon: Icons.CheckSquare },
+                { id: 'exercices', label: 'Exercices', icon: Icons.Edit3 },
+            ];
+
+            return (
+                <div className="min-h-screen flex flex-col font-sans">
+                    {/* Header Pédagogique */}
+                    <header className="bg-slate-900 text-white pt-6 pb-4 px-4 shadow-md sticky top-0 z-20">
+                        <div className="max-w-4xl mx-auto">
+                            <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight mb-1">
+                                <span className="text-blue-400">Maths</span> 2ème Sciences
+                            </h1>
+                            <p className="text-slate-400 text-sm sm:text-base font-medium flex items-center">
+                                Chapitre 5 : Trigonométrie et mesure de grandeurs
+                            </p>
+                        </div>
+                    </header>
+
+                    {/* Sélecteur de Notions (FIX AFFICHAGE MULTI-LIGNES SUR ECRAN ETROIT) */}
+                    <div className="bg-white border-b border-slate-200 shadow-sm sticky top-[76px] z-10">
+                        <div className="max-w-4xl mx-auto px-2 sm:px-4 py-3 flex flex-wrap justify-center gap-2">
+                            {modulesData.map(mod => (
+                                <button
+                                    key={mod.id}
+                                    onClick={() => { setActiveModuleId(mod.id); setActiveTab('labo'); }}
+                                    className={`flex items-center px-3 py-2 rounded-full font-bold text-sm sm:text-base transition-all
+                                        ${activeModuleId === mod.id 
+                                            ? 'bg-blue-600 text-white shadow-md ring-2 ring-blue-300 ring-offset-1' 
+                                            : 'bg-slate-100 text-slate-600 hover:bg-slate-200'}`}
+                                >
+                                    <span className="mr-2">{mod.icon}</span> {mod.title}
+                                </button>
+                            ))}
+                        </div>
+                    </div>
+
+                    {/* Contenu Principal */}
+                    <main className="flex-1 max-w-4xl w-full mx-auto p-4 sm:p-6 mb-12">
+                        
+                        {/* Navigation interne (Onglets) */}
+                        <div className="flex bg-slate-200 p-1 rounded-2xl mb-6 overflow-hidden">
+                            {tabs.map(tab => {
+                                const Icon = tab.icon;
+                                const isActive = activeTab === tab.id;
+                                return (
+                                    <button
+                                        key={tab.id}
+                                        onClick={() => setActiveTab(tab.id)}
+                                        className={`flex-1 flex flex-col sm:flex-row items-center justify-center py-2 sm:py-3 px-1 rounded-xl text-xs sm:text-sm font-bold transition-all
+                                            ${isActive ? 'bg-white text-blue-700 shadow-sm' : 'text-slate-500 hover:text-slate-700 hover:bg-slate-200/50'}`}
+                                    >
+                                        <div className="mb-1 sm:mb-0 sm:mr-2 opacity-80"><Icon /></div>
+                                        <span className={isActive ? 'opacity-100' : 'opacity-90'}>{tab.label}</span>
+                                    </button>
+                                );
+                            })}
+                        </div>
+
+                        {/* Zone d'affichage dynamique */}
+                        <div className="min-h-[400px]">
+                            {activeTab === 'cours' && (
+                                <div className="animate-fadeIn max-w-3xl mx-auto">
+                                    <div className="mb-6">
+                                        <h2 className="text-2xl font-bold text-slate-800 flex items-center mb-2">
+                                            <span className="mr-2">{activeModule.icon}</span> L'essentiel à retenir
+                                        </h2>
+                                        <p className="text-slate-500">Conforme au manuel officiel et enrichi avec les astuces de classe.</p>
+                                    </div>
+                                    <div className="bg-white p-6 rounded-2xl shadow-sm border border-slate-200">
+                                        {activeModule.course}
+                                    </div>
+                                </div>
+                            )}
+
+                            {activeTab === 'labo' && (
+                                <div className="animate-fadeIn">
+                                    <div className="mb-6 text-center max-w-2xl mx-auto">
+                                        <h2 className="text-2xl font-bold text-slate-800 mb-2">Manipulation Visuelle</h2>
+                                        <p className="text-slate-600">Jouez avec les variables pour observer les résultats de façon interactive.</p>
+                                    </div>
+                                    {activeModule.labType === 'triangle-alkashi' ? (
+                                        <TriangleLab />
+                                    ) : (
+                                        <TrigonometryLab type={activeModule.labType} />
+                                    )}
+                                </div>
+                            )}
+
+                            {activeTab === 'qcm' && (
+                                <div className="animate-fadeIn max-w-2xl mx-auto">
+                                    <div className="mb-6">
+                                        <h2 className="text-2xl font-bold text-slate-800 mb-2">Vérification des acquis</h2>
+                                        <p className="text-slate-600">Appliquez les astuces vues en cours. Une explication s'affichera à chaque réponse.</p>
+                                    </div>
+                                    <Quiz questions={activeModule.quiz} />
+                                </div>
+                            )}
+
+                            {activeTab === 'exercices' && (
+                                <div className="animate-fadeIn max-w-3xl mx-auto">
+                                    <div className="mb-6">
+                                        <h2 className="text-2xl font-bold text-slate-800 mb-2">Entraînement pas à pas</h2>
+                                        <p className="text-slate-600">Exercices typiques basés sur le manuel. Essayez de les faire sur un brouillon avant de regarder la correction.</p>
+                                    </div>
+                                    <ExerciseViewer exercises={activeModule.exercises} />
+                                </div>
+                            )}
+                        </div>
+
+                    </main>
+                </div>
+            );
+        };
+
+        const root = ReactDOM.createRoot(document.getElementById('root'));
+        root.render(<App />);
+    </script>
+</body>
+</html>
